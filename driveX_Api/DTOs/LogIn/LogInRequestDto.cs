@@ -1,13 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace driveX_Api.Models.LogIn
+namespace driveX_Api.DTOs.LogIn
 {
-    public class Request
+    public class LogInRequestDto
     {
         [Required]
         public string UserId { get; set; }
         [Required]
         public string Password { get; set; }
-        public string Token { get; set; }
     }
 }

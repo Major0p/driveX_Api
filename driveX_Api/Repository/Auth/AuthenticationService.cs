@@ -10,15 +10,17 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace driveX_Api.Repository.Auth
 {
-    public class AuthenticationService
+    public class AuthenticationService : IAuthentication
     {
         public DriveXDBC _db;
         public Mapper _mapper;
+        public IJwtToken _jwtTokenService;
 
-        public AuthenticationService(DriveXDBC driveXDBC,Mapper mapper)
+        public AuthenticationService(DriveXDBC driveXDBC,Mapper mapper, IJwtToken jwtTokenService)
         {
             _db = driveXDBC;
             _mapper = mapper;
+            _jwtTokenService = jwtTokenService;
         }
 
         public async Task<bool> IsUserExist(string userId)
@@ -51,9 +53,10 @@ namespace driveX_Api.Repository.Auth
             }
             else
                 apiResponse.SetFailure("User does not exist.");
-            
+
             //add jwt token 
-            apiResponse.SetToken("");
+            string token = _jwtTokenService.GenerateToken(signUpRequest.UserId);
+            apiResponse.SetToken(token);
 
             return apiResponse;
         }
@@ -85,7 +88,8 @@ namespace driveX_Api.Repository.Auth
                 apiResponse.SetFailure("User does not exist.");
 
             //add jwt token
-            apiResponse.SetToken("");
+            string token = _jwtTokenService.GenerateToken(logInRequest.UserId);
+            apiResponse.SetToken(token);
 
             return apiResponse;
         }

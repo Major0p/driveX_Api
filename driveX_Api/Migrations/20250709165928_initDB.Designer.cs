@@ -12,8 +12,8 @@ using driveX_Api.DataBase.DBContexts;
 namespace driveX_Api.Migrations
 {
     [DbContext(typeof(DriveXDBC))]
-    [Migration("20250705170302_InitialCreateFixed")]
-    partial class InitialCreateFixed
+    [Migration("20250709165928_initDB")]
+    partial class initDB
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -27,9 +27,8 @@ namespace driveX_Api.Migrations
 
             modelBuilder.Entity("driveX_Api.Models.File.Details", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("Id")
+                        .HasColumnType("Varchar(100)");
 
                     b.Property<DateTime>("CreationDate")
                         .HasColumnType("datetime2");
@@ -52,8 +51,9 @@ namespace driveX_Api.Migrations
                         .IsRequired()
                         .HasColumnType("varchar(255)");
 
-                    b.Property<Guid>("ParentId")
-                        .HasColumnType("UNIQUEIDENTIFIER");
+                    b.Property<string>("ParentId")
+                        .IsRequired()
+                        .HasColumnType("Varchar(100)");
 
                     b.Property<string>("Path")
                         .IsRequired()
@@ -68,8 +68,9 @@ namespace driveX_Api.Migrations
                     b.Property<bool>("Trashed")
                         .HasColumnType("bit");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("UNIQUEIDENTIFIER");
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("Varchar(100)");
 
                     b.HasKey("Id");
 
@@ -80,11 +81,11 @@ namespace driveX_Api.Migrations
 
             modelBuilder.Entity("driveX_Api.Models.File.SharedDetails", b =>
                 {
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("UserId")
+                        .HasColumnType("Varchar(100)");
 
-                    b.Property<Guid>("DetailsId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("DetailsId")
+                        .HasColumnType("Varchar(100)");
 
                     b.Property<DateTime>("SharedDate")
                         .HasColumnType("datetime");
@@ -98,8 +99,8 @@ namespace driveX_Api.Migrations
 
             modelBuilder.Entity("driveX_Api.Models.File.Storage", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("Id")
+                        .HasColumnType("Varchar(100)");
 
                     b.Property<byte[]>("Data")
                         .IsRequired()
@@ -112,9 +113,8 @@ namespace driveX_Api.Migrations
 
             modelBuilder.Entity("driveX_Api.Models.User.UserInfo", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("Id")
+                        .HasColumnType("Varchar(100)");
 
                     b.Property<string>("Email")
                         .IsRequired()

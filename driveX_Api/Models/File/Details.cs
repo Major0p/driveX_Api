@@ -10,14 +10,14 @@ namespace driveX_Api.Models.File
     public class Details
     {
         [Required]
-        public Guid Id { get; set; }
+        public string Id { get; set; }
         [Required]
-        public Guid UserId { get; set; }
+        public string UserId { get; set; }
         public string Name { get; set; }
         public long Size { get; set; }
         public string Extension { get; set; }
         [Required]
-        public Guid ParentId { get; set; }
+        public string ParentId { get; set; }
         [Required]
         public string Path { get; set; }
         public bool Trashed { get; set; }

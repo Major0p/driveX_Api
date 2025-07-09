@@ -13,10 +13,10 @@ namespace driveX_Api.Repository.Auth
     public class AuthenticationService : IAuthentication
     {
         public DriveXDBC _db;
-        public Mapper _mapper;
+        public IMapper _mapper;
         public IJwtToken _jwtTokenService;
 
-        public AuthenticationService(DriveXDBC driveXDBC,Mapper mapper, IJwtToken jwtTokenService)
+        public AuthenticationService(DriveXDBC driveXDBC,IMapper mapper, IJwtToken jwtTokenService)
         {
             _db = driveXDBC;
             _mapper = mapper;
@@ -104,13 +104,12 @@ namespace driveX_Api.Repository.Auth
                 _db.Users.Remove(userInfo);
                 await _db.SaveChangesAsync();
 
-                apiResponse.SetSuccess(null,"removed user");
+                apiResponse.SetSuccess(null, "removed user");
             }
             else
                 apiResponse.SetFailure("user not found");
 
             return apiResponse;
         }
-
     }
 }

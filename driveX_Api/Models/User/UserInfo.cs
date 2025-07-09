@@ -7,7 +7,7 @@ namespace driveX_Api.Models.User
     public class UserInfo
     {
         [Required]
-        public Guid Id { get; set; }
+        public string Id { get; set; }
         [Required]
         public string FirstName { get; set; }
         [Required]

@@ -21,12 +21,6 @@ namespace driveX_Api.Controllers
             _authServices = authentication;
         }
 
-        public string ResToJsonStr(object obj)
-        {
-            string jsonStr = JsonConvert.SerializeObject(obj);
-            return jsonStr;
-        }
-
         [HttpPost]
         [Route("signUp")]
         public async Task<IActionResult> SignUp([FromBody] SignUpRequestDto signUpRequest)
@@ -37,7 +31,7 @@ namespace driveX_Api.Controllers
                     return BadRequest("insufficient data");
 
                 var response = await _authServices.SignUp(signUpRequest);
-                return Ok(ResToJsonStr(response));
+                return Ok(JsonConvert.SerializeObject(response));
             }
             catch (Exception ex)
             {
@@ -55,7 +49,7 @@ namespace driveX_Api.Controllers
                     return BadRequest("insufficient data");
 
                 var response = await _authServices.SignIn(logInRequest);
-                return Ok(ResToJsonStr(response));
+                return Ok(JsonConvert.SerializeObject(response));
             }
             catch (Exception ex)
             {
@@ -73,7 +67,7 @@ namespace driveX_Api.Controllers
                     return BadRequest("insufficient data");
 
                 var response = await _authServices.RemoveUser(logInRequest);
-                return Ok(ResToJsonStr(response));
+                return Ok(JsonConvert.SerializeObject(response));
             }
             catch (Exception ex)
             {

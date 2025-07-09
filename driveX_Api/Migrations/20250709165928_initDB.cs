@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace driveX_Api.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreateFixed : Migration
+    public partial class initDB : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -15,7 +15,7 @@ namespace driveX_Api.Migrations
                 name: "Users",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Id = table.Column<string>(type: "Varchar(100)", nullable: false),
                     FirstName = table.Column<string>(type: "Varchar(100)", nullable: false),
                     LastName = table.Column<string>(type: "varchar(100)", nullable: false),
                     Password = table.Column<string>(type: "varchar(100)", nullable: false),
@@ -31,12 +31,12 @@ namespace driveX_Api.Migrations
                 name: "FileDetails",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    UserId = table.Column<Guid>(type: "UNIQUEIDENTIFIER", nullable: false),
+                    Id = table.Column<string>(type: "Varchar(100)", nullable: false),
+                    UserId = table.Column<string>(type: "Varchar(100)", nullable: false),
                     Name = table.Column<string>(type: "varchar(255)", nullable: false),
                     Size = table.Column<long>(type: "bigint", nullable: false),
                     Extension = table.Column<string>(type: "varchar(10)", nullable: false),
-                    ParentId = table.Column<Guid>(type: "UNIQUEIDENTIFIER", nullable: false),
+                    ParentId = table.Column<string>(type: "Varchar(100)", nullable: false),
                     Path = table.Column<string>(type: "varchar(max)", nullable: false),
                     Trashed = table.Column<bool>(type: "bit", nullable: false),
                     IsFile = table.Column<bool>(type: "bit", nullable: false),
@@ -59,7 +59,7 @@ namespace driveX_Api.Migrations
                 name: "FileStorages",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Id = table.Column<string>(type: "Varchar(100)", nullable: false),
                     Data = table.Column<byte[]>(type: "varbinary(max)", nullable: false)
                 },
                 constraints: table =>
@@ -77,8 +77,8 @@ namespace driveX_Api.Migrations
                 name: "SharedDetails",
                 columns: table => new
                 {
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    DetailsId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserId = table.Column<string>(type: "Varchar(100)", nullable: false),
+                    DetailsId = table.Column<string>(type: "Varchar(100)", nullable: false),
                     SharedDate = table.Column<DateTime>(type: "datetime", nullable: false)
                 },
                 constraints: table =>

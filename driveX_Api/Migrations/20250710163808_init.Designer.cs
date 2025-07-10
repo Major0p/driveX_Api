@@ -12,8 +12,8 @@ using driveX_Api.DataBase.DBContexts;
 namespace driveX_Api.Migrations
 {
     [DbContext(typeof(DriveXDBC))]
-    [Migration("20250709165928_initDB")]
-    partial class initDB
+    [Migration("20250710163808_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -113,7 +113,7 @@ namespace driveX_Api.Migrations
 
             modelBuilder.Entity("driveX_Api.Models.User.UserInfo", b =>
                 {
-                    b.Property<string>("Id")
+                    b.Property<string>("UserId")
                         .HasColumnType("Varchar(100)");
 
                     b.Property<string>("Email")
@@ -136,7 +136,7 @@ namespace driveX_Api.Migrations
                         .IsRequired()
                         .HasColumnType("varchar(15)");
 
-                    b.HasKey("Id");
+                    b.HasKey("UserId");
 
                     b.ToTable("Users", (string)null);
                 });

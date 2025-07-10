@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace driveX_Api.Migrations
 {
     /// <inheritdoc />
-    public partial class initDB : Migration
+    public partial class init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -15,7 +15,7 @@ namespace driveX_Api.Migrations
                 name: "Users",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "Varchar(100)", nullable: false),
+                    UserId = table.Column<string>(type: "Varchar(100)", nullable: false),
                     FirstName = table.Column<string>(type: "Varchar(100)", nullable: false),
                     LastName = table.Column<string>(type: "varchar(100)", nullable: false),
                     Password = table.Column<string>(type: "varchar(100)", nullable: false),
@@ -24,7 +24,7 @@ namespace driveX_Api.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Users", x => x.Id);
+                    table.PrimaryKey("PK_Users", x => x.UserId);
                 });
 
             migrationBuilder.CreateTable(
@@ -52,7 +52,7 @@ namespace driveX_Api.Migrations
                         name: "FK_FileDetails_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
-                        principalColumn: "Id");
+                        principalColumn: "UserId");
                 });
 
             migrationBuilder.CreateTable(
@@ -93,7 +93,7 @@ namespace driveX_Api.Migrations
                         name: "FK_SharedDetails_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
-                        principalColumn: "Id");
+                        principalColumn: "UserId");
                 });
 
             migrationBuilder.CreateIndex(

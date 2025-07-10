@@ -10,7 +10,7 @@ namespace driveX_Api.Models.File
         [Required]
         public string DetailsId { get; set; }
         public DateTime SharedDate { get; set; }
-        public Details Details { get; set; }
-        public UserInfo User { get; set; }
+        public Details Details { get; set; } = new();
+        public UserInfo User { get; set; } = new();
     }
 }

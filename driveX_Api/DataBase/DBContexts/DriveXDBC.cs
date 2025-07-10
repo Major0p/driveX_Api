@@ -22,8 +22,8 @@ namespace driveX_Api.DataBase.DBContexts
             {
                 entity.ToTable("Users");
 
-                entity.HasKey(u=>u.Id);
-                entity.Property(u => u.Id).HasColumnType("Varchar(100)").IsRequired();
+                entity.HasKey(u=>u.UserId);
+                entity.Property(u => u.UserId).HasColumnType("Varchar(100)").IsRequired();
                 entity.Property(u=>u.FirstName).HasColumnType("Varchar(100)").IsRequired();
                 entity.Property(u => u.LastName).HasColumnType("varchar(100)");
                 entity.Property(u => u.Password).HasColumnType("varchar(100)");

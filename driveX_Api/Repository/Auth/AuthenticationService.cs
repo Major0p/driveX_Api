@@ -1,10 +1,10 @@
 ﻿using AutoMapper;
 using Azure;
+using driveX_Api.CommonClasses;
 using driveX_Api.DataBase.DBContexts;
 using driveX_Api.DTOs.LogIn;
 using driveX_Api.DTOs.SignUp;
 using driveX_Api.Models.User;
-using driveX_Api.Utils;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -37,7 +37,7 @@ namespace driveX_Api.Repository.Auth
             ApiResponse<LogInResponseDto> apiResponse = new();
 
             bool isExist = await IsUserExist(signUpRequest.UserId);
-            if (isExist)
+            if (!isExist)
             {
                 LogInResponseDto logInResponse = new();
 
@@ -49,14 +49,13 @@ namespace driveX_Api.Repository.Auth
                 logInResponse.UserId = signUpRequest.UserId;
                 logInResponse.Name = signUpRequest.FirstName;
 
-                apiResponse.SetSuccess(logInResponse,"succesful signup");
+                //add jwt token 
+                string token = _jwtTokenService.GenerateToken(signUpRequest.UserId);
+                apiResponse.SetToken(token);
+                apiResponse.SetSuccess(logInResponse,"successfull signup");
             }
             else
-                apiResponse.SetFailure("User does not exist.");
-
-            //add jwt token 
-            string token = _jwtTokenService.GenerateToken(signUpRequest.UserId);
-            apiResponse.SetToken(token);
+                apiResponse.SetFailure("User exist. Please log in");
 
             return apiResponse;
         }
@@ -67,29 +66,29 @@ namespace driveX_Api.Repository.Auth
 
             LogInResponseDto logInInResponse = new();
 
-            var user = _db.Users
+            var user = await _db.Users
                 .AsNoTracking()
-                .Where(u => u.Id.ToString() == logInRequest.UserId)
-                .Select(u => new { userId = u.Id.ToString(), password = u.Password,firstName = u.FirstName })
+                .Where(u => u.UserId.ToString() == logInRequest.UserId)
+                .Select(u => new { userId = u.UserId, password = u.Password,firstName = u.FirstName })
                 .FirstOrDefaultAsync();
             
-            if (!string.IsNullOrEmpty(user.Result.userId))
+            if (user != null && !string.IsNullOrEmpty(user.userId))
             {
-                if (logInRequest.UserId == user.Result.userId && logInRequest.Password == user.Result.password)
+                if (logInRequest.UserId == user.userId && logInRequest.Password == user.password)
                 {
                     logInInResponse.UserId = logInRequest.UserId;
-                    logInInResponse.Name = user.Result.firstName;
+                    logInInResponse.Name = user.firstName;
 
+                    //add jwt token
+                    string token = _jwtTokenService.GenerateToken(logInRequest.UserId);
+                    apiResponse.SetToken(token);
                     apiResponse.SetSuccess(logInInResponse,"loged in");
                 }
-                apiResponse.SetFailure("incorrect userid and password");
+                else
+                    apiResponse.SetFailure("incorrect userid and password");
             }
             else
                 apiResponse.SetFailure("User does not exist.");
-
-            //add jwt token
-            string token = _jwtTokenService.GenerateToken(logInRequest.UserId);
-            apiResponse.SetToken(token);
 
             return apiResponse;
         }

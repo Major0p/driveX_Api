@@ -110,7 +110,7 @@ namespace driveX_Api.Migrations
 
             modelBuilder.Entity("driveX_Api.Models.User.UserInfo", b =>
                 {
-                    b.Property<string>("Id")
+                    b.Property<string>("UserId")
                         .HasColumnType("Varchar(100)");
 
                     b.Property<string>("Email")
@@ -133,7 +133,7 @@ namespace driveX_Api.Migrations
                         .IsRequired()
                         .HasColumnType("varchar(15)");
 
-                    b.HasKey("Id");
+                    b.HasKey("UserId");
 
                     b.ToTable("Users", (string)null);
                 });

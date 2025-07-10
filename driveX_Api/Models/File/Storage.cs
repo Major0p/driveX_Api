@@ -9,6 +9,6 @@ namespace driveX_Api.Models.File
         public string Id { get; set; }
         [Required]
         public byte[] Data { get; set; }
-        public Details Details { get; set; }
+        public Details Details { get; set; } = new();
     }
 }

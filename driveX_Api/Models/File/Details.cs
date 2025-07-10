@@ -28,6 +28,6 @@ namespace driveX_Api.Models.File
         public DateTime ModifiedDate { get; set; }
         public UserInfo User { get; set; }
         public Storage Storage { get; set; }
-        public ICollection<SharedDetails> SharedDetails { get; set; }
+        public ICollection<SharedDetails> SharedDetails { get; set; } = [];
     }
 }

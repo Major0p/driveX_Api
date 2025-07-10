@@ -1,6 +1,6 @@
-﻿using driveX_Api.DTOs.LogIn;
+﻿using driveX_Api.CommonClasses;
+using driveX_Api.DTOs.LogIn;
 using driveX_Api.DTOs.SignUp;
-using driveX_Api.Utils;
 
 namespace driveX_Api.Repository.Auth
 {

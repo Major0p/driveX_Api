@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Query;
 
-namespace driveX_Api.Utils
+namespace driveX_Api.CommonClasses
 {
     public class ApiResponse<T>
     {

@@ -7,7 +7,7 @@ namespace driveX_Api.Models.User
     public class UserInfo
     {
         [Required]
-        public string Id { get; set; }
+        public string UserId { get; set; }
         [Required]
         public string FirstName { get; set; }
         [Required]
@@ -16,7 +16,7 @@ namespace driveX_Api.Models.User
         public string Password { get; set; }
         public string Email { get; set; }
         public string Phone { get; set; }
-        public ICollection<Details> FileDetails { get; set; }
-        public ICollection<SharedDetails> SharedDetails { get; set; }
+        public ICollection<Details> FileDetails { get; set; } = [];
+        public ICollection<SharedDetails> SharedDetails { get; set; } = [];
     }
 }

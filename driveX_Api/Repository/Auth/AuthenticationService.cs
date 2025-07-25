@@ -23,6 +23,22 @@ namespace driveX_Api.Repository.Auth
             _jwtTokenService = jwtTokenService;
         }
 
+        public ApiResponse<string> RefreshToken(string userId)
+        {
+            ApiResponse<string> apiResponse = new();
+
+            if (!string.IsNullOrEmpty(userId))
+            {
+                var token = _jwtTokenService.GenerateToken(userId);
+                apiResponse.SetToken(token);
+                apiResponse.Success = true;
+            }
+            else
+                apiResponse.SetFailure("userId is not provided");
+
+            return apiResponse;
+        }
+
         public async Task<bool> IsUserExist(string userId)
         {
             var res = await _db.Users.FindAsync(userId);
@@ -109,6 +125,11 @@ namespace driveX_Api.Repository.Auth
                 apiResponse.SetFailure("user not found");
 
             return apiResponse;
+        }
+
+        public Task<ApiResponse<RefreshTokenDto>> RefreshToken(LogInRequestDto logInRequest)
+        {
+            throw new NotImplementedException();
         }
     }
 }

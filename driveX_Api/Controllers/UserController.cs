@@ -16,9 +16,29 @@ namespace driveX_Api.Controllers
     public class UserController : ControllerBase
     {
         IAuthentication _authServices;
-        public UserController(IAuthentication authentication)
+        IJwtToken _jwtTokenService;
+
+        public UserController(IAuthentication authentication, IJwtToken jwtTokenService)
         {
             _authServices = authentication;
+            _jwtTokenService = jwtTokenService;
+        }
+
+        [HttpPost]
+        [Route("refreshToken")]
+        public async Task<IActionResult>RefreshToken([FromBody] string userId)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(userId))
+                    return BadRequest("userId is required");
+                var response = await _authServices.RefreshToken(userId);
+                return Ok(JsonConvert.SerializeObject(response));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex);
+            }
         }
 
         [HttpPost]

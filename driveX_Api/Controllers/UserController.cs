@@ -26,13 +26,13 @@ namespace driveX_Api.Controllers
 
         [HttpPost]
         [Route("refreshToken")]
-        public async Task<IActionResult>RefreshToken([FromBody] string userId)
+        public IActionResult RefreshToken([FromBody] string userId)
         {
             try
             {
                 if (string.IsNullOrEmpty(userId))
                     return BadRequest("userId is required");
-                var response = await _authServices.RefreshToken(userId);
+                var response = _authServices.RefreshToken(userId);
                 return Ok(JsonConvert.SerializeObject(response));
             }
             catch (Exception ex)

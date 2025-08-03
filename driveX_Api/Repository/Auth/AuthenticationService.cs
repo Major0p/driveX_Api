@@ -126,10 +126,5 @@ namespace driveX_Api.Repository.Auth
 
             return apiResponse;
         }
-
-        public Task<ApiResponse<RefreshTokenDto>> RefreshToken(LogInRequestDto logInRequest)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

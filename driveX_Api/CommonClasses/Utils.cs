@@ -1,8 +1,8 @@
 ﻿namespace driveX_Api.CommonClasses
 {
-    public class Utils
+    public static class Utils
     {
-        public string GenerateId()
+        public static string GenerateId()
         {
             return Guid.NewGuid().ToString("N");
         }

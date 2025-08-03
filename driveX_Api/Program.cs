@@ -1,7 +1,7 @@
 using driveX_Api.DataBase.DBContexts;
 using driveX_Api.DTOs.JWT;
 using driveX_Api.Repository.Auth;
-using driveX_Api.Utils;
+using driveX_Api.CommonClasses;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;

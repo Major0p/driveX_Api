@@ -3,7 +3,6 @@ using driveX_Api.DataBase.DBContexts;
 using driveX_Api.DTOs.LogIn;
 using driveX_Api.DTOs.SignUp;
 using driveX_Api.Repository.Auth;
-using driveX_Api.Utils;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;

@@ -120,11 +120,25 @@ namespace driveX_Api.Repository.File
 
             if (isUserExist && isParentIdValid && isSameNameFile && isTrashedFile)
             {
+                string fileId = await CreateUniqueFileId();
+                string path = await CreateParentPath(detailsDto.ParentId);
+
                 Details details = new()
                 {
-                
+                    Id = fileId,
+                    UserId = detailsDto.UserId,
+                    Name = detailsDto.Name,
+                    Size = detailsDto.Size,
+                    Extension = detailsDto.Extension,
+                    ParentId = detailsDto.ParentId,
+                    Path = path,
+                    Trashed = isTrashedFile,
+                    IsFile = false,
+                    Starred = false,
+                    Label = detailsDto.Label,
+                    CreationDate = Utils.GetCurrDateTime(),
+                    ModifiedDate = Utils.GetCurrDateTime(),
                 };
-
 
                 await _driveXDBC.FileDetails.AddAsync(details);
 

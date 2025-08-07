@@ -6,5 +6,10 @@
         {
             return Guid.NewGuid().ToString("N");
         }
+
+        public static DateTime GetCurrDateTime()
+        {
+            return DateTime.UtcNow;
+        }
     }
 }

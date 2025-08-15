@@ -1,10 +1,12 @@
-﻿using driveX_Api.CommonClasses;
+﻿using AutoMapper;
+using driveX_Api.CommonClasses;
 using driveX_Api.DataBase.DBContexts;
 using driveX_Api.DTOs.File;
 using driveX_Api.Models.File;
 using driveX_Api.Repository.Auth;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Identity.Client;
 using Microsoft.OpenApi.Writers;
 
@@ -13,59 +15,51 @@ namespace driveX_Api.Repository.File
     public class FileSaveServices : IFileSave
     {
         public DriveXDBC _driveXDBC;
-        public IJwtToken _jwtToken;
         public IAuthentication _authentication;
+        public IMapper _mapper;
 
-        public FileSaveServices(IJwtToken jwtToken,DriveXDBC driveXDBC, IAuthentication authentication)
+        public FileSaveServices(DriveXDBC driveXDBC, IAuthentication authentication,IMapper mapper)
         {
-            _jwtToken = jwtToken;
             _driveXDBC = driveXDBC;
             _authentication = authentication;
+            _mapper = mapper;
         }
 
         public async Task<bool> IsValidParentId(string parentId)
         {
-            bool response = false;
-
             if(!string.IsNullOrEmpty(parentId))
             {
                 if (parentId == Constants.FILE_ROOT_ID)
-                    response = true;
+                    return true;
 
-                response = await _driveXDBC.FileDetails.AnyAsync(fl => fl.ParentId == parentId); 
+                 return await _driveXDBC.FileDetails.AnyAsync(fl => fl.ParentId == parentId); 
             }
 
-            return response;
+            return false;
         }
 
         public async Task<bool> IsSameNameFile(string name,string parentId)
         {
-            bool response = false;
-
             if(!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(parentId))
-                response = await _driveXDBC.FileDetails.AnyAsync(fl=> fl.ParentId == parentId && fl.Name == name);
+                return await _driveXDBC.FileDetails.AnyAsync(fl => fl.ParentId == parentId && fl.Name == name);
 
-            return response;
+            return false;
         }
 
         public async Task<bool> IsTrashedFile(string parentId, string name)
         {
-            bool response = false;
-
             if (!string.IsNullOrEmpty(parentId) && !string.IsNullOrEmpty(name))
-                response = await _driveXDBC.FileDetails.AnyAsync(fl=> fl.ParentId == parentId && fl.Name == name && fl.Trashed == true);
+                return await _driveXDBC.FileDetails.AnyAsync(fl => fl.ParentId == parentId && fl.Name == name && fl.Trashed == true);
 
-            return response;
+            return false;
         }
 
         public async Task<bool> IsIdExist(string id)
         {
-            bool response = false;
-
             if (!string.IsNullOrEmpty(id))
-                response = await _driveXDBC.FileDetails.AnyAsync(fl=>fl.Id == id);
+                return await _driveXDBC.FileDetails.AnyAsync(fl=>fl.Id == id);
 
-            return response;
+            return false;
         }
 
         public async Task<string>CreateUniqueFileId()
@@ -84,12 +78,10 @@ namespace driveX_Api.Repository.File
 
         public async Task<string> GetParentPath(string id)
         {
-            string response = string.Empty;
-
             if (!string.IsNullOrEmpty(id))
-                response = await _driveXDBC.FileDetails.Where(fl => fl.Id == id).Select(fl => fl.Path).FirstOrDefaultAsync();
+                return await _driveXDBC.FileDetails.Where(fl => fl.Id == id).Select(fl => fl.Path).FirstOrDefaultAsync();
 
-            return response;
+            return string.Empty;
         }
 
         public async Task<string> CreateParentPath(string parentId)
@@ -109,16 +101,77 @@ namespace driveX_Api.Repository.File
             return parentPath;
         }
 
-        public async Task<ApiResponse<Details>> CreateFolder(DetailsDto detailsDto)
+        public async Task<ApiResponse<DetailsDto>> CreateFolder(DetailsDto detailsDto)
         {
-            ApiResponse<Details> apiResponse = new();
+            ApiResponse<DetailsDto> apiResponse = new();
 
             bool isUserExist = await _authentication.IsUserExist(detailsDto.UserId);
             bool isParentIdValid = await IsValidParentId(detailsDto.ParentId);
             bool isSameNameFile = await IsSameNameFile(detailsDto.Name,detailsDto.ParentId);
             bool isTrashedFile = await IsTrashedFile(detailsDto.ParentId, detailsDto.Name);
 
-            if (isUserExist && isParentIdValid && isSameNameFile && isTrashedFile)
+            if (isUserExist && isParentIdValid && !isSameNameFile && !isTrashedFile)
+            {
+                string fileId = await CreateUniqueFileId();
+                string path = await CreateParentPath(detailsDto.ParentId);
+
+                Details details = new()
+                {
+                    Id = fileId,
+                    UserId = detailsDto.UserId,
+                    Name = detailsDto.Name,
+                    Size = detailsDto.Size,
+                    Extension = string.Empty,
+                    ParentId = detailsDto.ParentId,
+                    Path = path,
+                    Trashed = false,
+                    IsFile = false,
+                    Starred = false,
+                    Label = detailsDto.Label,
+                    CreationDate = Utils.GetCurrDateTime(),
+                    ModifiedDate = Utils.GetCurrDateTime(),
+                };
+
+                await _driveXDBC.FileDetails.AddAsync(details);
+                await _driveXDBC.SaveChangesAsync();
+
+                DetailsDto responseData = new();
+                responseData = _mapper.Map(details,responseData);
+
+                apiResponse.SetSuccess(responseData, "folder Created succesfully");
+            }
+            else
+            {
+                string msg = string.Empty;
+
+                if (!isUserExist)
+                    msg = "user not exist";
+
+                if (!isParentIdValid)
+                    msg = "parent id is invalid";
+
+                if (isSameNameFile)
+                    msg = "same folder exist";
+
+                if (isTrashedFile)
+                    msg = "file is in trash";
+
+                apiResponse.SetFailure(msg);
+            }
+
+           return apiResponse;
+        }
+
+        public async Task<ApiResponse<DetailsDto>> SaveFile(DetailsDto detailsDto)
+        {
+            ApiResponse<DetailsDto> apiResponse = new();
+
+            bool isUserExist = await _authentication.IsUserExist(detailsDto.UserId);
+            bool isParentIdValid = await IsValidParentId(detailsDto.ParentId);
+            bool isSameNameFile = await IsSameNameFile(detailsDto.Name, detailsDto.ParentId);
+            bool isTrashedFile = await IsTrashedFile(detailsDto.ParentId, detailsDto.Name);
+
+            if (isUserExist && isParentIdValid && !isSameNameFile && !isTrashedFile)
             {
                 string fileId = await CreateUniqueFileId();
                 string path = await CreateParentPath(detailsDto.ParentId);
@@ -132,27 +185,60 @@ namespace driveX_Api.Repository.File
                     Extension = detailsDto.Extension,
                     ParentId = detailsDto.ParentId,
                     Path = path,
-                    Trashed = isTrashedFile,
-                    IsFile = false,
+                    Trashed = false,
+                    IsFile = true,
                     Starred = false,
                     Label = detailsDto.Label,
                     CreationDate = Utils.GetCurrDateTime(),
                     ModifiedDate = Utils.GetCurrDateTime(),
                 };
 
+                byte[] fileData = []; 
+                if(detailsDto.Data != null)
+                {
+                    using var ms = new MemoryStream();
+                    await detailsDto.Data.CopyToAsync(ms);
+                    fileData = ms.ToArray();
+                }
+                Storage storage = new()
+                { 
+                    Id = fileId,
+                    Data = fileData
+                }
+            ;
                 await _driveXDBC.FileDetails.AddAsync(details);
+                await _driveXDBC.SaveChangesAsync();
 
-                apiResponse.SetSuccess(details, "folder Created succesfully");
+                await _driveXDBC.FileStorage.AddAsync(storage);
+                await _driveXDBC.SaveChangesAsync();
 
-                var token = _jwtToken.GenerateToken(detailsDto.UserId);
-                apiResponse.SetToken(token);
+                DetailsDto responseData = new();
+                responseData = _mapper.Map(details, responseData);
+                responseData.Data = null;
+
+                apiResponse.SetSuccess(responseData, "file saved succesfully");
             }
             else
             {
-                apiResponse.SetFailure("user does not exist");
+                string msg = string.Empty;
+
+                if (!isUserExist)
+                    msg = "user not exist";
+
+                if (!isParentIdValid)
+                    msg = "parent id is invalid";
+
+                if (isSameNameFile)
+                    msg = "same folder exist";
+
+                if (isTrashedFile)
+                    msg = "file is in trash";
+
+                apiResponse.SetFailure(msg);
             }
 
            return apiResponse;
         }
+
     }
 }

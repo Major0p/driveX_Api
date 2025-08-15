@@ -1,8 +1,10 @@
 ﻿using Azure;
+using driveX_Api.CommonClasses;
 using driveX_Api.DataBase.DBContexts;
 using driveX_Api.DTOs.LogIn;
 using driveX_Api.DTOs.SignUp;
 using driveX_Api.Repository.Auth;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -23,15 +25,33 @@ namespace driveX_Api.Controllers
             _jwtTokenService = jwtTokenService;
         }
 
-        [HttpPost]
+        [HttpGet]
+        [Route("IsLogedIn")]
+        [Authorize(AuthenticationSchemes = "SessionScheme")]
+        public IActionResult IsLogedIn()
+        {
+            try
+            {
+                
+                return Ok(JsonConvert.SerializeObject(new {data = 1 }));
+            }
+            catch(Exception ex)
+            {
+                return StatusCode(500,ex.ToString());
+            }
+        }
+
+        [HttpGet]
         [Route("refreshToken")]
-        public IActionResult RefreshToken([FromBody] string userId)
+        [Authorize(AuthenticationSchemes = "SessionScheme")]
+        public IActionResult RefreshToken([FromQuery] string userId)
         {
             try
             {
                 if (string.IsNullOrEmpty(userId))
                     return BadRequest("userId is required");
-                var response = _authServices.RefreshToken(userId);
+
+                var response = _jwtTokenService.GetNewToken(userId);
                 return Ok(JsonConvert.SerializeObject(response));
             }
             catch (Exception ex)
@@ -42,6 +62,7 @@ namespace driveX_Api.Controllers
 
         [HttpPost]
         [Route("signUp")]
+        [AllowAnonymous]
         public async Task<IActionResult> SignUp([FromBody] SignUpRequestDto signUpRequest)
         {
             try
@@ -60,6 +81,7 @@ namespace driveX_Api.Controllers
 
         [HttpPost]
         [Route("logIn")]
+        [AllowAnonymous]
         public async Task<IActionResult> LogIn([FromBody] LogInRequestDto logInRequest)
         {
             try
@@ -78,6 +100,7 @@ namespace driveX_Api.Controllers
 
         [HttpPost]
         [Route("RemoveUser")]
+        [Authorize(AuthenticationSchemes = "AccessScheme")]
         public async Task<IActionResult> RemoveUser([FromBody] LogInRequestDto logInRequest)
         {
             try

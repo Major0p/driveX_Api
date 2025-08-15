@@ -7,7 +7,7 @@ namespace driveX_Api.CommonClasses
         public bool Success { get; set; } = true;
         public string Message { get; set; } = "ok";
         public T? Data { get; set; }
-        public string Token { get; set; }
+        public object Token { get; set; }
 
         public ApiResponse<T> SetSuccess(T data, string message)
         {
@@ -25,7 +25,7 @@ namespace driveX_Api.CommonClasses
             return this;
         }
 
-        public ApiResponse<T> SetToken(string token)
+        public ApiResponse<T> SetToken(object token)
         {
             Token = token;
             return this;

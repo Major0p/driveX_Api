@@ -8,6 +8,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using System.Reflection;
 using System.Text;
+using driveX_Api.Repository.File;
+using Microsoft.IdentityModel.Tokens.Experimental;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,38 +28,56 @@ var driveXCS = config.GetConnectionString("driveX");
 builder.Services.AddDbContext<DriveXDBC>(options=>options.UseSqlServer(driveXCS));
 
 builder.Services.AddScoped<IAuthentication, AuthenticationService>();
-
-//setting jwt properties
+builder.Services.AddScoped<IFileSave,FileSaveServices>();
 builder.Services.AddScoped<IJwtToken, JwtTokenServices>();
-builder.Services.Configure<JwtToken>(config.GetSection("JwtToken"));
-var jwtToken = config.GetSection("JwtToken").Get<JwtToken>();    
-var key = Encoding.UTF8.GetBytes(jwtToken.Key);
 
-builder.Services.AddAuthentication(option =>
+
+builder.Services.Configure<JwtToken>("AccessToken",config.GetSection("AccessToken"));
+builder.Services.Configure<JwtToken>("SessionToken", config.GetSection("SessionToken"));
+
+var accessToken = config.GetSection("AccessToken").Get<JwtToken>();
+var sessionToken = config.GetSection("SessionToken").Get<JwtToken>();
+
+builder.Services.AddAuthentication( options=>
 {
-    option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    option.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultAuthenticateScheme = "AccessScheme";
+    options.DefaultChallengeScheme = "AccessScheme";
 })
-.AddJwtBearer(options =>
- {
-     options.TokenValidationParameters = new TokenValidationParameters
-     {
-         ValidateIssuer = true,
-         ValidateAudience = true,
-         ValidateLifetime = true,
-         ValidateIssuerSigningKey = true,
-         ValidIssuer = jwtToken.Issuer,
-         ValidAudience = jwtToken.Audience,
-         IssuerSigningKey = new SymmetricSecurityKey(key)
-     };
- });
+    .AddJwtBearer("AccessScheme", options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = accessToken.Issuer,
+            ValidAudience = accessToken.Audience,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(accessToken.Key)),
+            ClockSkew = TimeSpan.Zero
+        };
+    })
+    .AddJwtBearer("SessionScheme", options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = sessionToken.Issuer,
+            ValidAudience = sessionToken.Audience,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(sessionToken.Key)),
+            ClockSkew = TimeSpan.Zero
+        };
+    });
 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAllOrigins",
-        policy => policy.AllowAnyOrigin()
-                          .AllowAnyMethod()
-                          .AllowAnyHeader());
+    policy => policy.AllowAnyOrigin()
+                    .AllowAnyMethod()
+                    .AllowAnyHeader());
 });
 
 
@@ -73,6 +94,7 @@ app.UseCors("AllowAllOrigins");
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

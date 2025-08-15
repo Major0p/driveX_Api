@@ -14,29 +14,13 @@ namespace driveX_Api.Repository.Auth
     {
         public DriveXDBC _db;
         public IMapper _mapper;
-        public IJwtToken _jwtTokenService;
+        public IJwtToken _jwtToken;
 
-        public AuthenticationService(DriveXDBC driveXDBC,IMapper mapper, IJwtToken jwtTokenService)
+        public AuthenticationService(DriveXDBC driveXDBC,IMapper mapper, IJwtToken jwtToken)
         {
             _db = driveXDBC;
             _mapper = mapper;
-            _jwtTokenService = jwtTokenService;
-        }
-
-        public ApiResponse<string> RefreshToken(string userId)
-        {
-            ApiResponse<string> apiResponse = new();
-
-            if (!string.IsNullOrEmpty(userId))
-            {
-                var token = _jwtTokenService.GenerateToken(userId);
-                apiResponse.SetToken(token);
-                apiResponse.Success = true;
-            }
-            else
-                apiResponse.SetFailure("userId is not provided");
-
-            return apiResponse;
+            _jwtToken = jwtToken;
         }
 
         public async Task<bool> IsUserExist(string userId)
@@ -65,8 +49,11 @@ namespace driveX_Api.Repository.Auth
                 logInResponse.UserId = signUpRequest.UserId;
                 logInResponse.Name = signUpRequest.FirstName;
 
-                //add jwt token 
-                string token = _jwtTokenService.GenerateToken(signUpRequest.UserId);
+                var token = new
+                {
+                    AccessToken = _jwtToken.GenerateAccessToken(logInResponse.UserId),
+                    SessionToken = _jwtToken.GenerateSessionToken(logInResponse.UserId)
+                };
                 apiResponse.SetToken(token);
                 apiResponse.SetSuccess(logInResponse,"successfull signup");
             }
@@ -95,8 +82,11 @@ namespace driveX_Api.Repository.Auth
                     logInInResponse.UserId = logInRequest.UserId;
                     logInInResponse.Name = user.firstName;
 
-                    //add jwt token
-                    string token = _jwtTokenService.GenerateToken(logInRequest.UserId);
+                    var token = new
+                    {
+                        AccessToken = _jwtToken.GenerateAccessToken(logInInResponse.UserId),
+                        SessionToken = _jwtToken.GenerateSessionToken(logInInResponse.UserId)
+                    };
                     apiResponse.SetToken(token);
                     apiResponse.SetSuccess(logInInResponse,"loged in");
                 }

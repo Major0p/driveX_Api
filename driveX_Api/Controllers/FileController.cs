@@ -23,12 +23,12 @@ namespace driveX_Api.Controllers
         }
 
         [HttpPost]
-        [Route("createfolder")]
+        [Route("CreateFolder")]
         public async Task<IActionResult> CreateFolder([FromBody] DetailsDto details)
         {
             try
             {
-                if (string.IsNullOrEmpty(details.UserId) || string.IsNullOrEmpty(details.Name) || string.IsNullOrEmpty(details.ParentId))
+                if (string.IsNullOrEmpty(details.Name) || string.IsNullOrEmpty(details.ParentId))
                     return BadRequest("insuffiecint data");
 
                 var response = await _fileServices.CreateFolder(details);
@@ -50,6 +50,24 @@ namespace driveX_Api.Controllers
                     return BadRequest("insuffiecint data");
 
                 var response = await _fileServices.SaveFile(detailsDto);
+                return Ok(JsonConvert.SerializeObject(response));
+            }
+            catch(Exception ex)
+            {
+                return StatusCode(500,ex.ToString());
+            }
+        }
+
+        [HttpGet]
+        [Route("GetFilesFoldersByParentId")]
+        public async Task<IActionResult> GetFilesFoldersByParentId([FromQuery] string parentId)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(parentId))
+                    return BadRequest("parentId not provided");
+
+                var response = await _fileServices.GetFilesFoldersByParentId(parentId);
                 return Ok(JsonConvert.SerializeObject(response));
             }
             catch(Exception ex)

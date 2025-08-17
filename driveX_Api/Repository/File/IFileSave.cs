@@ -14,5 +14,7 @@ namespace driveX_Api.Repository.File
         public Task<bool> IsIdExist(string id);
         public Task<string> CreateUniqueFileId();
         public Task<string> GetParentPath(string id);
+        public Task<ApiResponse<List<DetailsDto>>> GetFilesFoldersByParentId(string parentId);
+        public Task<string> GetParentPathByParentId(string parentId);
     }
 }

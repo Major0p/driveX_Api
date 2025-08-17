@@ -101,6 +101,14 @@ namespace driveX_Api.Repository.File
             return parentPath;
         }
 
+        public async Task<string> GetParentPathByParentId(string parentId)
+        {
+            if(!string.IsNullOrEmpty(parentId))
+               return await _driveXDBC.FileDetails.Where(fl => fl.ParentId == parentId).Select(fl=>fl.Path).FirstAsync();
+
+            return string.Empty;
+        }
+
         public async Task<ApiResponse<DetailsDto>> CreateFolder(DetailsDto detailsDto)
         {
             ApiResponse<DetailsDto> apiResponse = new();
@@ -204,8 +212,8 @@ namespace driveX_Api.Repository.File
                 { 
                     Id = fileId,
                     Data = fileData
-                }
-            ;
+                };
+
                 await _driveXDBC.FileDetails.AddAsync(details);
                 await _driveXDBC.SaveChangesAsync();
 
@@ -240,5 +248,18 @@ namespace driveX_Api.Repository.File
            return apiResponse;
         }
 
+        public async Task<ApiResponse<List<DetailsDto>>> GetFilesFoldersByParentId(string parentId)
+        {
+            ApiResponse<List<DetailsDto>> apiResponse = new();
+
+            string parentPath = await GetParentPathByParentId(parentId);
+
+            var result = await _driveXDBC.FileDetails.Where(fl => fl.Path == parentPath).ToListAsync();
+
+            var list = _mapper.Map<List<DetailsDto>>(result);
+
+            apiResponse.SetSuccess(list,"data fetched successfully");
+            return apiResponse;
+        }
     }
 }

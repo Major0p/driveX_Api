@@ -11,15 +11,24 @@ using System.Text;
 using driveX_Api.Repository.File;
 using Microsoft.IdentityModel.Tokens.Experimental;
 using Microsoft.Extensions.Options;
+using System.Text.Json;
+using driveX_Api.Middleware;
+using driveX_Api.Background_Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(option=>
+    {
+        option.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+        option.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+    });
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
 
 builder.Services.AddAutoMapper(configAction => configAction.AddMaps(Assembly.GetEntryAssembly()));
 
@@ -31,6 +40,8 @@ builder.Services.AddScoped<IAuthentication, AuthenticationService>();
 builder.Services.AddScoped<IFileSave,FileSaveServices>();
 builder.Services.AddScoped<IJwtToken, JwtTokenServices>();
 
+
+builder.Services.AddHostedService<NotificationBgService>();
 
 builder.Services.Configure<JwtToken>("AccessToken",config.GetSection("AccessToken"));
 builder.Services.Configure<JwtToken>("SessionToken", config.GetSection("SessionToken"));
@@ -89,6 +100,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseMiddleware<ExecptionHandle>();
 
 app.UseCors("AllowAllOrigins");
 

@@ -24,14 +24,14 @@ namespace driveX_Api.Controllers
 
         [HttpPost]
         [Route("CreateFolder")]
-        public async Task<IActionResult> CreateFolder([FromBody] DetailsDto details)
+        public async Task<IActionResult> CreateFolder([FromBody] string folderName, [FromBody] string parentId, [FromBody] string userId)
         {
             try
             {
-                if (string.IsNullOrEmpty(details.Name) || string.IsNullOrEmpty(details.ParentId))
+                if (string.IsNullOrEmpty(folderName) || string.IsNullOrEmpty(parentId) || string.IsNullOrEmpty(userId))
                     return BadRequest("insuffiecint data");
 
-                var response = await _fileServices.CreateFolder(details);
+                var response = await _fileServices.CreateFolder(folderName,parentId,userId);
                 return Ok(JsonConvert.SerializeObject(response));
             }
             catch(Exception ex)

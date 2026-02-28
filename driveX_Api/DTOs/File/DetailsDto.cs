@@ -16,8 +16,8 @@ namespace driveX_Api.DTOs.File
         public bool IsFile { get; set; } = true;
         public bool Starred { get; set; } = false;
         public string Label { get; set; } = string.Empty;
-        public IFormFile Data { get; set; }
         public DateTime CreationDate { get; set; }
         public DateTime ModifiedDate { get; set; }
+        public IFormFile Data { get; set; }
     }
 }

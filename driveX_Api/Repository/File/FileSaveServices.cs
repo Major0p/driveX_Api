@@ -109,33 +109,33 @@ namespace driveX_Api.Repository.File
             return string.Empty;
         }
 
-        public async Task<ApiResponse<DetailsDto>> CreateFolder(DetailsDto detailsDto)
+        public async Task<ApiResponse<DetailsDto>> CreateFolder(string folderName,string parentId,string userId)
         {
             ApiResponse<DetailsDto> apiResponse = new();
 
-            bool isUserExist = await _authentication.IsUserExist(detailsDto.UserId);
-            bool isParentIdValid = await IsValidParentId(detailsDto.ParentId);
-            bool isSameNameFile = await IsSameNameFile(detailsDto.Name,detailsDto.ParentId);
-            bool isTrashedFile = await IsTrashedFile(detailsDto.ParentId, detailsDto.Name);
+            bool isUserExist = await _authentication.IsUserExist(userId);
+            bool isParentIdValid = await IsValidParentId(parentId);
+            bool isSameNameFile = await IsSameNameFile(folderName,parentId);
+            bool isTrashedFile = await IsTrashedFile(parentId, folderName);
 
             if (isUserExist && isParentIdValid && !isSameNameFile && !isTrashedFile)
             {
                 string fileId = await CreateUniqueFileId();
-                string path = await CreateParentPath(detailsDto.ParentId);
+                string path = await CreateParentPath(parentId);
 
                 Details details = new()
                 {
                     Id = fileId,
-                    UserId = detailsDto.UserId,
-                    Name = detailsDto.Name,
-                    Size = detailsDto.Size,
+                    UserId = userId,
+                    Name = folderName,
+                    Size = 0,
                     Extension = string.Empty,
-                    ParentId = detailsDto.ParentId,
+                    ParentId = parentId,
                     Path = path,
                     Trashed = false,
                     IsFile = false,
                     Starred = false,
-                    Label = detailsDto.Label,
+                    Label = string.Empty,
                     CreationDate = Utils.GetCurrDateTime(),
                     ModifiedDate = Utils.GetCurrDateTime(),
                 };

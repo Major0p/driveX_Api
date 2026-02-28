@@ -6,7 +6,7 @@ namespace driveX_Api.Repository.File
 {
     public interface IFileSave
     {
-        public Task<ApiResponse<DetailsDto>> CreateFolder(DetailsDto detailsDto);
+        public Task<ApiResponse<DetailsDto>> CreateFolder(string folderName,string parentId,string userId);
         public Task<ApiResponse<DetailsDto>> SaveFile(DetailsDto detailsDto);
         public Task<bool> IsValidParentId(string parentId);
         public Task<bool> IsSameNameFile(string name, string parentId);

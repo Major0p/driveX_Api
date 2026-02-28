@@ -32,8 +32,8 @@ namespace driveX_Api.DataBase.DBContexts
 
                 //one-to-many: user -> Details
                 entity.HasMany(u => u.FileDetails)
-                      .WithOne(d => d.User)
-                      .HasForeignKey(d => d.UserId)
+                      .WithOne(u => u.User)
+                      .HasForeignKey(u => u.UserId)
                       .OnDelete(DeleteBehavior.NoAction);
             });
 
